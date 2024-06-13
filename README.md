@@ -7,19 +7,19 @@ Template para TP DDS 2024 - Entrega 3
 
 # Endpoints
 
-### Heladeras
+# Heladeras
 
 Operaciones relacionadas con heladeras.
 
-#### POST /heladeras/crearGenericas
+## GET /heladeras/crearGenericas
 
 Crea Heladeras genericas en la base de datos
 
-#### POST /heladeras/deleteAll
+## GET /heladeras/deleteAll
 
 Borra todo lo de la base de datos
 
-#### POST /heladeras
+## POST /heladeras
 
 Agregar una nueva heladera.
 
@@ -35,14 +35,14 @@ Agregar una nueva heladera.
 }
 ```
 
-#### GET /heladeras/{heladeraId}
+## GET /heladeras/{heladeraId}
 Obtener una heladera por su ID
 
 **Request Body:**
 
 -   Parameters: **heladeraId (integer, path) - ID de la heladera**
 
-#### POST /depositos
+## POST /depositos
 Depositar una vianda en una heladera
 
 **Request Body:**
@@ -56,7 +56,7 @@ Depositar una vianda en una heladera
   "qrVianda": "string"
 }
 ```
-### POST /retiros
+## POST /retiros
 Retirar una vianda de una heladera
 
 **Request Body:**
@@ -73,7 +73,7 @@ Retirar una vianda de una heladera
   "heladeraId": 0
 }
 ```
-### POST /temperaturas
+## POST /temperaturas
 Registrar la temperatura de una heladera
 
 **Request Body:**
@@ -89,7 +89,7 @@ Registrar la temperatura de una heladera
 }
 ```
 
-### GET /heladeras/{heladeraId}/temperaturas
+## GET /heladeras/{heladeraId}/temperaturas
 Obtener las temperaturas registradas de una heladera por su ID
 
 **Request:**
@@ -110,7 +110,7 @@ Obtener las temperaturas registradas de una heladera por su ID
 
 ## Schemas
 
-### HeladeraDTO
+## HeladeraDTO
 ```json
 {
   "id": "integer",
@@ -123,7 +123,7 @@ nombre (string)
 - **Nombre de la heladera**  
 - **Cantidad de viandas en la heladera (INTEGER)** 
 
-### TemperaturaDTO
+## TemperaturaDTO
 ```json
 {
   "temperatura": "integer",
@@ -136,7 +136,7 @@ nombre (string)
 - **heladeraId (STRING)** ID de la heladera 
 - **fechaMedicion (STRING)** Fecha y hora de la medición 
 
-### TemperaturaDTO
+## TemperaturaDTO
 ```json
 {
   "id": "integer",
