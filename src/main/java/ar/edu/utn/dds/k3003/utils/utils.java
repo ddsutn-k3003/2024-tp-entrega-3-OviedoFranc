@@ -35,7 +35,7 @@ public class utils {
        int randomNumber = 0 ;
        Random random = new Random();
         for (int i = 0; i < 5; i++) {
-            int digit = random.nextInt(10); // Generar un dígito aleatorio entre 0 y 9
+            int digit = random.nextInt(10); // Genero un numero aleatorio entre 0 y 9
             randomNumber = randomNumber * 10 + digit;
         }
         return randomNumber;

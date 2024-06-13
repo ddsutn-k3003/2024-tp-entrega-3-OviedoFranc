@@ -28,7 +28,7 @@ public class WebApp {
 
         var env = System.getenv();
         var objectMapper = createObjectMapper();
-        var fachada = new Fachada();
+        var fachada = new Fachada(entityManagerFactory);
         fachada.setViandasProxy(new ViandasProxy(objectMapper));
 
         var port = Integer.parseInt(env.getOrDefault("PORT", "8080"));
@@ -41,12 +41,15 @@ public class WebApp {
 
         var heladeraController = new HeladeraController(fachada);
 
+        app.get("/heladeras/crearGenericas", heladeraController::crearHeladerasGenericas);
+        app.get("/heladeras/deleteAll", heladeraController::borrarTodo);
         app.post("/heladeras", heladeraController::agregar);
         app.get("/heladeras/{heladeraId}", heladeraController::obtenerHeladera);
         app.post("/depositos", heladeraController::depositarVianda);
         app.post("/retiros", heladeraController::retirarVianda);
         app.post("/temperaturas", heladeraController::registrarTemperatura);
         app.get("/heladeras/{heladeraId}/temperaturas", heladeraController::obtenerTemperaturas);
+
     }
 
     public static ObjectMapper createObjectMapper() {
@@ -68,8 +71,7 @@ public class WebApp {
         Map<String, String> env = System.getenv();
         Map<String, Object> configOverrides = new HashMap<String, Object>();
         String[] keys = new String[] { "javax.persistence.jdbc.url", "javax.persistence.jdbc.user",
-                "javax.persistence.jdbc.password", "javax.persistence.jdbc.driver", "hibernate.hbm2ddl.auto",
-                "hibernate.connection.pool_size", "hibernate.show_sql"};
+                "javax.persistence.jdbc.password"};
         for (String key : keys) {
             if (env.containsKey(key)) {
                 String value = env.get(key);

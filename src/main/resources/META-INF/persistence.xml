@@ -10,16 +10,17 @@
 
         <!-- PERSISTENCIA -->
         <class>ar.edu.utn.dds.k3003.model.Heladera</class>
+        <class>ar.edu.utn.dds.k3003.model.SensorTemperatura</class>
+        <class>ar.edu.utn.dds.k3003.model.Temperatura</class>
 
         <properties>
-            <!--//TODO: BORRAR ESTO-->
-            <property name="hibernate.connection.driver_class" value="com.mysql.cj.jdbc.Driver"/>
-            <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/heladeradb"/>
-            <property name="hibernate.connection.username" value="root"/>
-            <property name="hibernate.connection.password" value=""/>
-
-            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
-
+            <property name="hibernate.hbm2ddl.auto" value="create"/>
+            <property name="hibernate.connection.pool_size" value="10" />
+            <property name="hibernate.archive.autodetection" value="class" />
+            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.format_sql" value="true" />
+            <property name="use_sql_comments" value="true" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
         </properties>
 
     </persistence-unit>

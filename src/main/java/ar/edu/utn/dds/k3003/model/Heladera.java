@@ -15,22 +15,23 @@ import static ar.edu.utn.dds.k3003.utils.utils.*;
 @Table(name = "heladera")
 public class Heladera {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer heladeraId;
-    String nombre;
-    String modelo;
+    private Integer heladeraId;
+    private String nombre;
+    private String modelo;
     @Embedded
-    Coordenadas coordenadas;
-    String direccion;
-    Integer cantidadMaximaViandas;
-    Float pesoMaximo;
-    Float pesoActual;
-    Boolean estadoActivo;
-    @Transient //@OneToOne
-    SensorTemperatura sensor;
-    Integer temperaturaMinima;
-    Integer temperaturaMaxima;
-    @Transient //@ElementCollection
-    List<String> viandas = new ArrayList<>();
+    private Coordenadas coordenadas;
+    private String direccion;
+    private Integer cantidadMaximaViandas;
+    private Float pesoMaximo;
+    private Float pesoActual;
+    private Boolean estadoActivo;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "sensor_id", referencedColumnName = "sensor_id")
+    private SensorTemperatura sensor;
+    private Integer temperaturaMinima;
+    private Integer temperaturaMaxima;
+    @ElementCollection
+    private List<String> viandas = new ArrayList<>();
 
     public Heladera(){}
 
@@ -43,7 +44,6 @@ public class Heladera {
         this.estadoActivo = true;
         this.modelo = generarModeloAleatorio();
         this.direccion = generarDireccionAleatoria();
-        this.sensor = new SensorTemperatura(this.heladeraId);
         this.temperaturaMaxima = randomNumberBetween(95,120);
         this.temperaturaMinima = - 10;
     }
@@ -57,7 +57,7 @@ public class Heladera {
     public String getNombre(){return this.nombre;}
 
     public Integer ultimaTemperatura(){
-        return this.sensor.ultimaTemperaRegistrada;
+        return this.sensor.getUltimaTemperaRegistrada();
     }
 
     public Map<Integer, LocalDateTime> obtenerTodasLasTemperaturas(){
@@ -86,5 +86,9 @@ public class Heladera {
 
     public SensorTemperatura getSensor() {
         return sensor;
+    }
+
+    public void setSensor(SensorTemperatura sensor) {
+        this.sensor = sensor;
     }
 }

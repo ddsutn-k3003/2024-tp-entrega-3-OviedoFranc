@@ -5,6 +5,7 @@ import ar.edu.utn.dds.k3003.facades.dtos.HeladeraDTO;
 import ar.edu.utn.dds.k3003.facades.dtos.RetiroDTO;
 import ar.edu.utn.dds.k3003.facades.dtos.TemperaturaDTO;
 import ar.edu.utn.dds.k3003.model.DTO.GetErrorHeladeraDTO;
+import ar.edu.utn.dds.k3003.utils.utilsHeladera;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
@@ -35,14 +36,19 @@ public class HeladeraController{
     }
 
     public void obtenerHeladera(@NotNull Context context){
-        try{
-            var heladeraDTO = fachada.obtenerHeladera(Integer.valueOf(context.pathParam("heladeraId")));
+        try {
+            String heladeraIdParam = context.pathParam("heladeraId");
+            Integer heladeraId = Integer.valueOf(heladeraIdParam);
+            var heladeraDTO = fachada.obtenerHeladera(heladeraId);
             context.json(heladeraDTO);
             context.status(HttpStatus.OK);
-        }
-        catch(NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             context.status(HttpStatus.NOT_FOUND);
-            context.result("Heladera No encontrada");
+            context.result("Heladera no encontrada :c");
+        } catch (Exception e) {
+            e.printStackTrace();
+            context.status(HttpStatus.INTERNAL_SERVER_ERROR);
+            context.result("Error interno del servidor " + e.getMessage());
         }
     }
 
@@ -52,7 +58,7 @@ public class HeladeraController{
             String qrVianda = context.pathParam("codigoQR");
             if (!fachada.existeHeladera(heladeraId)) {
                 context.status(HttpStatus.NOT_FOUND);
-                context.result("Heladera no encontrada");
+                context.result("Heladera no encontrada :c");
             }
             fachada.depositar(heladeraId, qrVianda);
             context.status(HttpStatus.OK);
@@ -113,6 +119,22 @@ public class HeladeraController{
             context.result(e.getLocalizedMessage());
             context.status(HttpStatus.BAD_REQUEST);
             context.result("Heladera no encontrada");
+        }
+    }
+    public void crearHeladerasGenericas(Context context){
+        try {
+            utilsHeladera.crearHeladeras(this.fachada);
+            context.status(201).result("Heladeras genericas creadas");
+        } catch (Exception e) {
+            context.status(500).result("Error de Servidor: " + e.getMessage());
+        }
+    }
+    public void borrarTodo(Context context){
+        try {
+            utilsHeladera.borrarTodo(this.fachada);
+            context.status(200).result("Todo borrado por aca :P");
+        } catch (Exception e) {
+            context.status(500).result("Error de Servidor: " + e.getMessage());
         }
     }
 }

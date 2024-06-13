@@ -3,100 +3,242 @@ package ar.edu.utn.dds.k3003.app;
 import ar.edu.utn.dds.k3003.facades.FachadaViandas;
 import ar.edu.utn.dds.k3003.facades.dtos.*;
 import ar.edu.utn.dds.k3003.model.Heladera;
-import ar.edu.utn.dds.k3003.repositories.HeladeraRepository;
-
+import ar.edu.utn.dds.k3003.model.SensorTemperatura;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.TypedQuery;
 import java.time.LocalDateTime;
 import java.util.*;
 
-
 public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
-
-    private final HeladeraRepository heladeraRepository = new HeladeraRepository();
     private FachadaViandas fachadaViandas;
+    private EntityManagerFactory entityManagerFactory;
 
-    public Fachada() {
+    public Fachada() {}
+
+    public Fachada(EntityManagerFactory entityManagerFactory){
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     public HeladeraDTO obtenerHeladera(Integer heladeraID){
-        Heladera heladera = heladeraRepository.findById(heladeraID);
-        return new HeladeraDTO(
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        try {
+
+            Heladera heladera = entityManager.find(Heladera.class, heladeraID);
+            HeladeraDTO heladeraDTO = new HeladeraDTO(
                 heladera.getHeladeraId(),
                 heladera.getNombre(),
-                heladera.cantidadDeViandas());
+                heladera.cantidadDeViandas()
+            );
+            return heladeraDTO;
+        } catch (Exception e) {
+            entityManager.getTransaction().rollback();
+            throw new RuntimeException("Error al obtener la Heladera con ID: " + heladeraID, e);
+        } finally {
+            entityManager.close();
+        }
+
     }
 
     public Boolean existeHeladera(Integer heladeraID){
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
         try{
-            Heladera heladera = heladeraRepository.findById(heladeraID);
+            Heladera heladera = entityManager.find(Heladera.class, heladeraID);
             return heladera!=null;
         }
         catch (Exception e) {return false;}
+        finally {
+            entityManager.close();
+        }
+    }
+
+    public List<Heladera> obtenerTodasLasHeladeras() {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+        try {
+            String jpql = "SELECT h FROM Heladera h";
+            TypedQuery<Heladera> query = entityManager.createQuery(jpql, Heladera.class);
+            List<Heladera> heladeras = query.getResultList();
+
+            return heladeras;
+        } finally {
+            entityManager.close();
+        }
     }
 
     @Override
     public HeladeraDTO agregar(HeladeraDTO heladeraDTO) {
-        Heladera heladera = new Heladera( heladeraDTO.getNombre());
-        Heladera heladeraGuardada = heladeraRepository.save(heladera);
-        return new HeladeraDTO( heladeraGuardada.getHeladeraId(), heladeraGuardada.getNombre(), heladeraGuardada.cantidadDeViandas());
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        try {
+            Heladera heladera = new Heladera( heladeraDTO.getNombre());
+            SensorTemperatura sensor = new SensorTemperatura(heladera);
+            heladera.setSensor(sensor);
+            entityManager.persist(heladera);
+            entityManager.getTransaction().commit();
+            entityManager.refresh(heladera);
+            return new HeladeraDTO( heladera.getHeladeraId(), heladera.getNombre(), heladera.cantidadDeViandas());
+        }catch (Exception e){
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            throw new RuntimeException("Error al agregar la heladera: " + e.getMessage());
+        }
+        finally {
+            entityManager.close();
+        }
     }
 
     @Override
     public void depositar(Integer heladeraID, String qrVianda) throws NoSuchElementException {
-        Heladera heladera = heladeraRepository.findById(heladeraID);
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        try {
+        Heladera heladera = entityManager.find(Heladera.class, heladeraID);
         ViandaDTO vianda = fachadaViandas.buscarXQR(qrVianda);
 
         fachadaViandas.modificarEstado(vianda.getCodigoQR(), EstadoViandaEnum.DEPOSITADA);
         fachadaViandas.modificarHeladera(vianda.getCodigoQR(), heladeraID);
 
-        try {
-            heladera.guardarVianda(qrVianda);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        heladera.guardarVianda(qrVianda);
 
-        heladeraRepository.save(heladera);
+        entityManager.merge(heladera);
+        entityManager.getTransaction().commit();
+
+        } catch (Exception e){
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            throw new RuntimeException("Error al agregar la heladera: " + e.getMessage());
+        }
+        finally {
+            entityManager.close();
+        }
     }
 
     @Override
-    public Integer cantidadViandas(Integer integer) throws NoSuchElementException {
-        Heladera heladera = heladeraRepository.findById(integer);
-        return heladera.cantidadDeViandas();
+    public Integer cantidadViandas(Integer heladeraID) throws NoSuchElementException {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        try {
+            Heladera heladera = entityManager.find(Heladera.class, heladeraID);
+            return heladera.cantidadDeViandas();
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new RuntimeException("Error al buscar la heladera: " + e.getMessage());
+        }
+        finally {
+            entityManager.close();
+        }
     }
 
     @Override
     public void retirar(RetiroDTO retiroDTO) throws NoSuchElementException {
-        Heladera heladera = heladeraRepository.findById(retiroDTO.getHeladeraId());
-        ViandaDTO vianda = fachadaViandas.buscarXQR(retiroDTO.getQrVianda());
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        try {
+            Heladera heladera = entityManager.find(Heladera.class, retiroDTO.getHeladeraId());
+            ViandaDTO vianda = fachadaViandas.buscarXQR(retiroDTO.getQrVianda());
 
-        fachadaViandas.modificarEstado(vianda.getCodigoQR(), EstadoViandaEnum.RETIRADA);
-        fachadaViandas.modificarHeladera(vianda.getCodigoQR(), -1);   // -1 SIGNIFICA SET NULL
+            fachadaViandas.modificarEstado(vianda.getCodigoQR(), EstadoViandaEnum.RETIRADA);
+            fachadaViandas.modificarHeladera(vianda.getCodigoQR(), -1);   // -1 SIGNIFICA SET NULL
 
-        heladera.retirarVianda(retiroDTO.getQrVianda());
-        heladeraRepository.save(heladera);
+            heladera.retirarVianda(retiroDTO.getQrVianda());
+            entityManager.merge(heladera);
+            entityManager.getTransaction().commit();
+
+        }catch (Exception e){
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            throw new RuntimeException("Error al  procesar el retiro: " + e.getMessage());
+        }
+        finally {
+            entityManager.close();
+        }
     }
 
     @Override
     public void temperatura(TemperaturaDTO temperaturaDTO) {
-        Heladera heladera = heladeraRepository.findById(temperaturaDTO.getHeladeraId());
-        heladera.getSensor().setNuevaTemperatura(temperaturaDTO.getTemperatura(), temperaturaDTO.getFechaMedicion());
-        heladeraRepository.save(heladera);
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        try{
+            Heladera heladera = entityManager.find(Heladera.class, temperaturaDTO.getHeladeraId());
+            SensorTemperatura sensor = heladera.getSensor();
+            if (sensor == null) {
+                throw new NoSuchElementException("Sensor no encontrado para la Heladera con ID: " + temperaturaDTO.getHeladeraId());
+            }
+
+            sensor.setNuevaTemperatura(temperaturaDTO.getTemperatura(), temperaturaDTO.getFechaMedicion());
+
+            entityManager.merge(sensor);
+            entityManager.getTransaction().commit();
+
+        }catch (Exception e){
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            throw new RuntimeException("Error al  guardar la temperatura en la heladera: " + e.getMessage());
+        }
+        finally {
+            entityManager.close();
+        }
     }
 
     @Override
-    public List<TemperaturaDTO> obtenerTemperaturas(Integer integer) {
-        Heladera heladera = heladeraRepository.findById(integer);
-        Map<Integer, LocalDateTime> temperaturas = heladera.obtenerTodasLasTemperaturas();
-
-        List<TemperaturaDTO> temperaturasMapped = new ArrayList<>();
-        temperaturas.forEach( (temperatura,tiempo) -> {
-            TemperaturaDTO temperaturaDTO = new TemperaturaDTO(
+    public List<TemperaturaDTO> obtenerTemperaturas(Integer heladeraID) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        try {
+            Heladera heladera = entityManager.find(Heladera.class, heladeraID);
+            Map<Integer, LocalDateTime> temperaturas = heladera.obtenerTodasLasTemperaturas();
+            List<TemperaturaDTO> temperaturasMapped = new ArrayList<>();
+            temperaturas.forEach( (temperatura,tiempo) -> {
+                TemperaturaDTO temperaturaDTO = new TemperaturaDTO(
                     temperatura,
                     heladera.getHeladeraId(),
                     tiempo
-            );
-            temperaturasMapped.add(temperaturaDTO);
-        } );
-        return temperaturasMapped;
+                );
+                temperaturasMapped.add(temperaturaDTO);
+            } );
+            return temperaturasMapped;
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new RuntimeException("Error al encontrar la Heladera " + heladeraID + " "+ e.getMessage());
+        }
+        finally {
+            entityManager.close();
+        }
+    }
+
+    public void eliminarHeladera(Integer heladeraId){
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        try {
+            Heladera heladera = entityManager.find(Heladera.class, heladeraId);
+
+                if (heladera != null) {
+                    entityManager.remove(heladera);
+                } else {
+                    throw new RuntimeException("No se encontró la heladera con ID: " + heladeraId);
+                }
+
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            if (entityManager.getTransaction().isActive()) {
+                entityManager.getTransaction().rollback();
+            }
+            e.printStackTrace();
+            throw new RuntimeException("Error al eliminar la heladera: " + e.getMessage());
+        } finally {
+            entityManager.close();
+        }
     }
 
     @Override

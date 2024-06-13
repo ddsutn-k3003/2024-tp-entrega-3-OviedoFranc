@@ -1,26 +1,25 @@
-package ar.edu.utn.dds.k3003.model;
+package ar.edu.utn.dds.k3003.model.DTO;
 
 import ar.edu.utn.dds.k3003.facades.dtos.EstadoViandaEnum;
+import ar.edu.utn.dds.k3003.model.Heladera;
 
-import static ar.edu.utn.dds.k3003.utils.utils.randomID;
+public class ViandaDTO {
 
-public class Vianda {
     Integer viandaId;
     String qrVianda;
     EstadoViandaEnum estadoVianda;
-    Integer heladeraId;
+    Heladera heladera;
 
-    public Vianda(){}
+    public ViandaDTO(){}
 
-    public Vianda(String qrVianda) {
-        this.viandaId = randomID();
+    public ViandaDTO(String qrVianda) {
         this.qrVianda = qrVianda;
         this.estadoVianda = EstadoViandaEnum.PREPARADA;
-        this.heladeraId = null;
+        this.heladera = null;
     }
 
-    public Integer getHeladeraId() {
-        return heladeraId;
+    public void setHeladera(Heladera heladera){
+        this.heladera = heladera;
     }
 
     public Integer getViandaId() {
@@ -39,7 +38,4 @@ public class Vianda {
         this.estadoVianda = estadoVianda;
     }
 
-    public void setHeladeraId(Integer heladeraId) {
-        this.heladeraId = heladeraId;
-    }
 }

@@ -5,19 +5,21 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-//@Entity
+@Entity
 public class SensorTemperatura {
-  //  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Integer id;
-    Integer heladeraIdPerteneciente;
-    //@OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sensor_id")
+    private Integer id;
+    @OneToOne(mappedBy = "sensor")
+    private Heladera heladera;
+    @OneToMany(mappedBy = "sensor", cascade = CascadeType.ALL)
     private List<Temperatura> temperaturas = new ArrayList<>();
-    Integer ultimaTemperaRegistrada;
+    private Integer ultimaTemperaRegistrada;
 
     public SensorTemperatura(){}
 
-    public SensorTemperatura(Integer heladeraId){
-        this.heladeraIdPerteneciente = heladeraId;
+    public SensorTemperatura(Heladera heladera) {
+        this.heladera = heladera;
     }
 
     public Integer getId() {
@@ -44,4 +46,7 @@ public class SensorTemperatura {
         return new AbstractMap.SimpleEntry<>(temperatura, tiempo);
     }
 
+    public Integer getUltimaTemperaRegistrada(){
+        return this.ultimaTemperaRegistrada;
+    }
 }

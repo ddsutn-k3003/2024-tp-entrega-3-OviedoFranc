@@ -3,16 +3,17 @@ package ar.edu.utn.dds.k3003.model;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-//@Entity
+@Entity
 public class Temperatura {
-  //  @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    //@ManyToOne
+    @ManyToOne
     private SensorTemperatura sensor;
     private LocalDateTime tiempo;
     private Integer temperatura;
 
     public Temperatura(){}
+
     public Temperatura(SensorTemperatura sensor, Integer temperatura, LocalDateTime tiempo) {
         this.sensor = sensor;
         this.tiempo = tiempo;
