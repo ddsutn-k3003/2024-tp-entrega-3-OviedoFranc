@@ -71,7 +71,7 @@ public class WebApp {
         Map<String, String> env = System.getenv();
         Map<String, Object> configOverrides = new HashMap<String, Object>();
         String[] keys = new String[] { "javax.persistence.jdbc.url", "javax.persistence.jdbc.user",
-                "javax.persistence.jdbc.password"};
+                "javax.persistence.jdbc.password", "javax.persistence.jdbc.driver"};
         for (String key : keys) {
             if (env.containsKey(key)) {
                 String value = env.get(key);
