@@ -75,9 +75,7 @@ public class Heladera {
         }
     }
     public void retirarVianda(String viandaQR) {
-        List<String> viandasList = new ArrayList<>(viandas);
-        viandasList.removeIf(v -> v.equals(viandaQR));
-        this.viandas = List.of(viandasList.toArray(new String[0]));
+        viandas.removeIf(v -> v.equals(viandaQR));
     }
 
     public Integer cantidadDeViandas(){

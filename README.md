@@ -53,7 +53,7 @@ Depositar una vianda en una heladera
 ```
 {
   "heladeraId": 0,
-  "qrVianda": "string"
+  "codigoQR": "string"
 }
 ```
 ### POST /retiros
@@ -67,9 +67,9 @@ Retirar una vianda de una heladera
 ```
 {
   "id": 0,
-  "qrVianda": "string",
+  "codigoQR": "string",
   "tarjeta": "string",
-  "fechaRetiro": "2024-06-13T20:14:26.435Z",
+  "fechaRetiro": "2024-06-14T01:01:26Z",
   "heladeraId": 0
 }
 ```
@@ -140,7 +140,7 @@ nombre (string)
 ```json
 {
   "id": "integer",
-  "qrVianda": "string",
+  "codigoQR": "string",
   "tarjeta": "string",
   "fechaRetiro": "string",
   "heladeraId": "integer"
@@ -148,7 +148,7 @@ nombre (string)
 
 ```
 - **id (INTEGER)** - ID del retiro (no usar en el POST)
-- **qrVianda (STRING)** - Código QR de la vianda retirada
+- **codigoQR (STRING)** - Código QR de la vianda retirada
 - **tarjeta (STRING)** - Tarjeta asociada al retiro
 - **fechaRetiro (STRING)** - Fecha y hora del retiro
 - **heladeraId (INTEGER)** - ID de la heladera

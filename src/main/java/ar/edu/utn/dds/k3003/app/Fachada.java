@@ -14,13 +14,14 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
     private FachadaViandas fachadaViandas;
     private EntityManagerFactory entityManagerFactory;
 
-    public Fachada() {}
+    public Fachada() {
+    }
 
-    public Fachada(EntityManagerFactory entityManagerFactory){
+    public Fachada(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
     }
 
-    public HeladeraDTO obtenerHeladera(Integer heladeraID){
+    public HeladeraDTO obtenerHeladera(Integer heladeraID) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         try {
@@ -41,15 +42,15 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
 
     }
 
-    public Boolean existeHeladera(Integer heladeraID){
+    public Boolean existeHeladera(Integer heladeraID) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
-        try{
+        try {
             Heladera heladera = entityManager.find(Heladera.class, heladeraID);
-            return heladera!=null;
-        }
-        catch (Exception e) {return false;}
-        finally {
+            return heladera != null;
+        } catch (Exception e) {
+            return false;
+        } finally {
             entityManager.close();
         }
     }
@@ -73,21 +74,20 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         try {
-            Heladera heladera = new Heladera( heladeraDTO.getNombre());
+            Heladera heladera = new Heladera(heladeraDTO.getNombre());
             SensorTemperatura sensor = new SensorTemperatura(heladera);
             heladera.setSensor(sensor);
             entityManager.persist(heladera);
             entityManager.getTransaction().commit();
             entityManager.refresh(heladera);
-            return new HeladeraDTO( heladera.getHeladeraId(), heladera.getNombre(), heladera.cantidadDeViandas());
-        }catch (Exception e){
+            return new HeladeraDTO(heladera.getHeladeraId(), heladera.getNombre(), heladera.cantidadDeViandas());
+        } catch (Exception e) {
             if (entityManager.getTransaction().isActive()) {
                 entityManager.getTransaction().rollback();
             }
             e.printStackTrace();
             throw new RuntimeException("Error al agregar la heladera: " + e.getMessage());
-        }
-        finally {
+        } finally {
             entityManager.close();
         }
     }
@@ -97,25 +97,27 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         try {
-        Heladera heladera = entityManager.find(Heladera.class, heladeraID);
-        ViandaDTO vianda = fachadaViandas.buscarXQR(qrVianda);
+            Heladera heladera = entityManager.find(Heladera.class, heladeraID);
+            if (heladera == null) {
+                throw new NoSuchElementException("No se encontró la heladera con ID: " + heladeraID);
+            }
+            ViandaDTO vianda = fachadaViandas.buscarXQR(qrVianda);
 
-        fachadaViandas.modificarEstado(vianda.getCodigoQR(), EstadoViandaEnum.DEPOSITADA);
-        fachadaViandas.modificarHeladera(vianda.getCodigoQR(), heladeraID);
+            fachadaViandas.modificarEstado(vianda.getCodigoQR(), EstadoViandaEnum.DEPOSITADA);
+            fachadaViandas.modificarHeladera(vianda.getCodigoQR(), heladeraID);
 
-        heladera.guardarVianda(qrVianda);
+            heladera.guardarVianda(qrVianda);
 
-        entityManager.merge(heladera);
-        entityManager.getTransaction().commit();
+            entityManager.merge(heladera);
+            entityManager.getTransaction().commit();
 
-        } catch (Exception e){
+        } catch (Exception e) {
             if (entityManager.getTransaction().isActive()) {
                 entityManager.getTransaction().rollback();
             }
             e.printStackTrace();
             throw new RuntimeException("Error al agregar la heladera: " + e.getMessage());
-        }
-        finally {
+        } finally {
             entityManager.close();
         }
     }
@@ -127,11 +129,10 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         try {
             Heladera heladera = entityManager.find(Heladera.class, heladeraID);
             return heladera.cantidadDeViandas();
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error al buscar la heladera: " + e.getMessage());
-        }
-        finally {
+        } finally {
             entityManager.close();
         }
     }
@@ -141,24 +142,32 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         try {
+
             Heladera heladera = entityManager.find(Heladera.class, retiroDTO.getHeladeraId());
+            if (heladera == null) {
+                throw new NoSuchElementException("Heladera no encontrada");
+            }
             ViandaDTO vianda = fachadaViandas.buscarXQR(retiroDTO.getQrVianda());
+            if (vianda == null) {
+                throw new NoSuchElementException("Vianda no encontrada");
+            }
 
             fachadaViandas.modificarEstado(vianda.getCodigoQR(), EstadoViandaEnum.RETIRADA);
-            fachadaViandas.modificarHeladera(vianda.getCodigoQR(), -1);   // -1 SIGNIFICA SET NULL
+
+            fachadaViandas.modificarHeladera(vianda.getCodigoQR(), -1);  // -1 SIGNIFICA SET NULL
 
             heladera.retirarVianda(retiroDTO.getQrVianda());
+
             entityManager.merge(heladera);
             entityManager.getTransaction().commit();
 
-        }catch (Exception e){
+        } catch (Exception e) {
             if (entityManager.getTransaction().isActive()) {
                 entityManager.getTransaction().rollback();
             }
             e.printStackTrace();
-            throw new RuntimeException("Error al  procesar el retiro: " + e.getMessage());
-        }
-        finally {
+            throw new RuntimeException("Error al procesar el retiro: " + e.getMessage());
+        } finally {
             entityManager.close();
         }
     }

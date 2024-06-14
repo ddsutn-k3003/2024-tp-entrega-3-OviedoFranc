@@ -4,10 +4,12 @@ import ar.edu.utn.dds.k3003.app.Fachada;
 import ar.edu.utn.dds.k3003.facades.dtos.HeladeraDTO;
 import ar.edu.utn.dds.k3003.facades.dtos.RetiroDTO;
 import ar.edu.utn.dds.k3003.facades.dtos.TemperaturaDTO;
+import ar.edu.utn.dds.k3003.model.DTO.DepositoDTO;
 import ar.edu.utn.dds.k3003.model.DTO.GetErrorHeladeraDTO;
 import ar.edu.utn.dds.k3003.utils.utilsHeladera;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
+import org.jetbrains.annotations.Debug;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
@@ -54,13 +56,12 @@ public class HeladeraController{
 
     public void depositarVianda(@NotNull Context context){
         try{
-            Integer heladeraId = Integer.valueOf(context.pathParam("heladeraId"));
-            String qrVianda = context.pathParam("codigoQR");
-            if (!fachada.existeHeladera(heladeraId)) {
+            DepositoDTO depositoDTO = context.bodyAsClass(DepositoDTO.class);
+            if (!fachada.existeHeladera(depositoDTO.getHeladeraId())) {
                 context.status(HttpStatus.NOT_FOUND);
                 context.result("Heladera no encontrada :c");
             }
-            fachada.depositar(heladeraId, qrVianda);
+            fachada.depositar(depositoDTO.getHeladeraId(), depositoDTO.getCodigoQR());
             context.status(HttpStatus.OK);
             context.result("Vianda depositada correctamente");
         }
@@ -73,15 +74,8 @@ public class HeladeraController{
 
     public void retirarVianda(@NotNull Context context){
         try{
-            //TODO: mover a un map ->
-            String qrVianda = context.pathParam("codigoQR");
-            String tarjeta = context.pathParam("tarjeta");
-            LocalDateTime fechaRetiro = LocalDateTime.parse(context.pathParam("fechaRetiro"));
-            Integer heladeraId = Integer.valueOf(context.pathParam("heladeraId"));
-
-            RetiroDTO retiro = new RetiroDTO( qrVianda, tarjeta, fechaRetiro, heladeraId );
-
-            fachada.retirar(retiro);
+            RetiroDTO retiroDTO = context.bodyAsClass(RetiroDTO.class);
+            fachada.retirar(retiroDTO);
             context.status(HttpStatus.OK);
             context.result("Vianda retirada exitosamente");
         }
