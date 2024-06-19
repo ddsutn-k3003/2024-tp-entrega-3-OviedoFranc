@@ -24,10 +24,10 @@ public class WebApp {
 
     public static void main(String[] args) {
 
-        entityManagerFactory = Persistence.createEntityManagerFactory("heladeradb");
+        startEntityManagerFactory();
+
         var env = System.getenv();
         var objectMapper = createObjectMapper();
-
         var fachada = new Fachada(entityManagerFactory);
         fachada.setViandasProxy(new ViandasProxy(objectMapper));
 
@@ -65,6 +65,20 @@ public class WebApp {
         var sdf = new SimpleDateFormat(Constants.DEFAULT_SERIALIZATION_FORMAT, Locale.getDefault());
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         objectMapper.setDateFormat(sdf);
+    }
+
+    public static void startEntityManagerFactory() {
+        Map<String, String> env = System.getenv();
+        Map<String, Object> configOverrides = new HashMap<String, Object>();
+        String[] keys = new String[] { "javax.persistence.jdbc.url", "javax.persistence.jdbc.user",
+                "javax.persistence.jdbc.password", "javax.persistence.jdbc.driver"};
+        for (String key : keys) {
+            if (env.containsKey(key)) {
+                String value = env.get(key);
+                configOverrides.put(key, value);
+            }
+        }
+        entityManagerFactory = Persistence.createEntityManagerFactory("heladeradb", configOverrides);
     }
 
 }

@@ -13,13 +13,7 @@
         <class>ar.edu.utn.dds.k3003.model.SensorTemperatura</class>
         <class>ar.edu.utn.dds.k3003.model.Temperatura</class>
 
-
         <properties>
-            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
-            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://dpg-cplhig8cmk4c739ouedg-a.oregon-postgres.render.com:5432/heladeradb"/>
-            <property name="javax.persistence.jdbc.user" value="heladeradb_user"/>
-            <property name="javax.persistence.jdbc.password" value="jXkNSZWMXXSIKs6buVA8FLpxhlXTnEPS"/>
-
             <property name="hibernate.hbm2ddl.auto" value="create"/>
             <property name="hibernate.connection.pool_size" value="10" />
             <property name="hibernate.archive.autodetection" value="class" />

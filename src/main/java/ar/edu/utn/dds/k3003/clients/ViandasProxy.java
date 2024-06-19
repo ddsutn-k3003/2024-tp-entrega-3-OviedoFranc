@@ -23,7 +23,7 @@ public class ViandasProxy implements FachadaViandas {
 
         var env = System.getenv();
         this.endpoint = env.getOrDefault("URL_VIANDAS", "https://two024-tp-entrega-2-hiogen.onrender.com");
-        System.out.println("URL_VIANDAS -> " + this.endpoint);
+
         var retrofit =
                 new Retrofit.Builder()
                         .baseUrl(this.endpoint)
