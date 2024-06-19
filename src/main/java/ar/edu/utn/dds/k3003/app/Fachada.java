@@ -38,6 +38,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
             throw new RuntimeException("Error al obtener la Heladera con ID: " + heladeraID, e);
         } finally {
             entityManager.close();
+            entityManagerFactory.close();
         }
 
     }
@@ -52,6 +53,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
             return false;
         } finally {
             entityManager.close();
+            entityManagerFactory.close();
         }
     }
 
@@ -66,6 +68,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
             return heladeras;
         } finally {
             entityManager.close();
+            entityManagerFactory.close();
         }
     }
 
@@ -89,6 +92,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
             throw new RuntimeException("Error al agregar la heladera: " + e.getMessage());
         } finally {
             entityManager.close();
+            entityManagerFactory.close();
         }
     }
 
@@ -119,6 +123,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
             throw new RuntimeException("Error al agregar la heladera: " + e.getMessage());
         } finally {
             entityManager.close();
+            entityManagerFactory.close();
         }
     }
 
@@ -134,6 +139,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
             throw new RuntimeException("Error al buscar la heladera: " + e.getMessage());
         } finally {
             entityManager.close();
+            entityManagerFactory.close();
         }
     }
 
@@ -169,6 +175,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
             throw new RuntimeException("Error al procesar el retiro: " + e.getMessage());
         } finally {
             entityManager.close();
+            entityManagerFactory.close();
         }
     }
 
@@ -197,6 +204,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         }
         finally {
             entityManager.close();
+            entityManagerFactory.close();
         }
     }
 
@@ -223,6 +231,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
         }
         finally {
             entityManager.close();
+            entityManagerFactory.close();
         }
     }
 
@@ -247,6 +256,7 @@ public class Fachada implements ar.edu.utn.dds.k3003.facades.FachadaHeladeras {
             throw new RuntimeException("Error al eliminar la heladera: " + e.getMessage());
         } finally {
             entityManager.close();
+            entityManagerFactory.close();
         }
     }
 
